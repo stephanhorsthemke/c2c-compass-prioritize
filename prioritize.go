@@ -7,7 +7,13 @@ import (
 	"net/http"
 
 	"github.com/stephanhorsthemke/c2c-compass-prioritize/decoder"
+	"github.com/stephanhorsthemke/c2c-compass-prioritize/gsheet"
 )
+
+func init() {
+	// get it if updated, too?! hourly?
+	go gsheet.GetGoogleSheet()
+}
 
 func main() {
 	log.Print("starting server...")
