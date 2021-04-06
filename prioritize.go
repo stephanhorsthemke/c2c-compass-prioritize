@@ -3,36 +3,39 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
-
-	"github.com/stephanhorsthemke/c2c-compass-prioritize/gsheet"
 )
 
 func main() {
-
-	gsheet.GetGoogleSheet()
-
+	s
 	log.Print("starting server...")
-	/*http.HandleFunc("/", handler)
-
-	// Determine port for HTTP service.
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-		log.Printf("defaulting to port %s", port)
-	}
+	http.HandleFunc("/", handler)
 
 	// Start HTTP server.
-	log.Printf("listening on port %s", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}
-	*/
-
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Fprintf(w, "Hello !\n")
+	// Allow only for Frontend
+	switch r.Method {
+	case "GET":
+		fmt.Println("This is the C2C compass backend, go to link in order to use the compass")
+	case "POST":
+		{
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+			prioritize(body)
+		}
+	}
+}
+
+func prioritize(body []byte) {
+	fmt.Println(body)
 }
