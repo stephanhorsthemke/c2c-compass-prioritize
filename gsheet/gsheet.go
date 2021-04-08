@@ -2,17 +2,16 @@ package gsheet
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"time"
 
 	"github.com/go-co-op/gocron"
+	"github.com/stephanhorsthemke/c2c-compass-prioritize/secrets"
 	"golang.org/x/net/context"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
 )
 
-const API_KEY = "AIzaSyCo3_7miV2h1_2BpD9zK0nBy4YxvuxAopU"
 const FILE_ID = "1ptowWZ8FuWWJOOTRHnQvVdb9Z3WPNv7mxNMPLK8Es6o"
 
 // The range the gsheet is read up to
@@ -34,14 +33,15 @@ type Link struct {
 func getGoogleSheet() [][]interface{} {
 	ctx := context.Background()
 
-	b, err := ioutil.ReadFile("secret/gdrive.json")
+	svc, err := sheets.NewService(ctx, option.WithCredentialsJSON(secrets.GDrive))
 	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
+		log.Fatal(err)
 	}
 
-	svc, err := sheets.NewService(ctx, option.WithCredentialsJSON(b))
-
 	resp, err := svc.Spreadsheets.Values.Get(FILE_ID, READ_RANGE).Context(ctx).Do()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return resp.Values
 }
