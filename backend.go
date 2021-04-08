@@ -7,18 +7,19 @@ import (
 	"net/http"
 
 	"github.com/stephanhorsthemke/c2c-compass-prioritize/decoder"
+	"github.com/stephanhorsthemke/c2c-compass-prioritize/encoder"
 	"github.com/stephanhorsthemke/c2c-compass-prioritize/gsheet"
+	"github.com/stephanhorsthemke/c2c-compass-prioritize/prioritizer"
 )
 
 func init() {
-	// get it if updated, too?! hourly?
-	go gsheet.GetGoogleSheet()
+	gsheet.UpdateLinks()
 }
 
 func main() {
+
 	log.Print("starting server...")
 	http.HandleFunc("/", handler)
-
 	// Start HTTP server.
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
@@ -37,7 +38,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "This is the C2C compass backend, go to <link to frontend> in order to use the compass")
 	case "POST":
 		{
-			prioritize(w, r)
+			handlePost(w, r)
 		}
 	case "OPTION":
 		fmt.Fprintf(w, "")
@@ -47,9 +48,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func prioritize(w http.ResponseWriter, r *http.Request) {
+func handlePost(w http.ResponseWriter, r *http.Request) {
 
-	var questions decoder.Questions = decoder.GetQuestions(r)
-	fmt.Fprintf(w, "knowledge type %T, value: %v \n", questions.Knowledge, questions.Knowledge)
+	questions := decoder.GetQuestions(r)
 	fmt.Printf("knowledge: %v, position: %v  \n", questions.Knowledge, questions.Position)
+	links := gsheet.GetLinks()
+	resultLinks := prioritizer.Prioritize(questions, links)
+	resultJson := encoder.LinksToJson(resultLinks)
+	fmt.Fprintf(w, "%s", resultJson)
+
 }
