@@ -18,14 +18,16 @@ func Prioritize(questions decoder.Questions, links []gsheet.Link) []gsheet.Link 
 	var ids int = 1
 	for _, v := range links {
 
-		parsed, err := strconv.ParseInt(v.Knowledge, 10, 32)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if int(parsed) == questions.Knowledge {
-			v.ID = ids
-			ids++
-			result = append(result, v)
+		if v.Knowledge != "" {
+			parsed, err := strconv.ParseInt(v.Knowledge, 10, 32)
+			if err != nil {
+				log.Fatal(err)
+			}
+			if int(parsed) == questions.Knowledge {
+				v.ID = ids
+				ids++
+				result = append(result, v)
+			}
 		}
 	}
 	return result

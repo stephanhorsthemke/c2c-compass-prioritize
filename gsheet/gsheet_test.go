@@ -10,10 +10,10 @@ var fakeValues [][]interface{} = [][]interface{}{
 }
 
 func TestParseLinks(t *testing.T) {
-	v := parseLinks(fakeValues)
-
 	v0 := Link{0, "link1", "DE", "description1", "", "", ""}
 	v1 := Link{0, "link2", "DE", "description2", "", "", ""}
+
+	v := parseLinks(fakeValues)
 
 	if v[0] != v0 {
 		t.Error("Expected", v0, "got ", v[0].Link)

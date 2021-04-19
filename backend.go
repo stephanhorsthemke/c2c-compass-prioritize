@@ -1,4 +1,3 @@
-// Sample run-helloworld is a minimal Cloud Run service.
 package main
 
 import (
@@ -28,19 +27,22 @@ func main() {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	//w.Header().Set("Access-Control-Allow-Origin", "*")
+	//fmt.Println("Allow ALL")
+	w.Header().Set("Access-Control-Allow-Origin", "https://compass-dot-c2c-compass.ey.r.appspot.com")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTION")
 
 	// Allow only for Frontend
 	switch r.Method {
 	case "GET":
-		fmt.Fprintf(w, "This is the C2C compass backend, go to <link to frontend> in order to use the compass")
+		gsheet.UpdateLinks()
+		fmt.Fprintf(w, "refreshing data")
 	case "POST":
 		{
 			handlePost(w, r)
 		}
-	case "OPTION":
+	case "OPTIONS":
 		fmt.Fprintf(w, "")
 	default:
 		fmt.Fprintf(w, "Unsupported http method, use GET or POST")
@@ -51,8 +53,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func handlePost(w http.ResponseWriter, r *http.Request) {
 
 	questions := decoder.GetQuestions(r)
-	fmt.Printf("knowledge: %v, position: %v  \n", questions.Knowledge, questions.Position)
+	//fmt.Printf("knowledge: %v, position: %v  \n", questions.Knowledge, questions.Position)
 	links := gsheet.GetLinks()
+	fmt.Println(links)
 	resultLinks := prioritizer.Prioritize(questions, links)
 	resultJson := encoder.LinksToJson(resultLinks)
 	fmt.Fprintf(w, "%s", resultJson)
